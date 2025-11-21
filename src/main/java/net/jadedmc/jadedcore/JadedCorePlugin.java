@@ -86,6 +86,8 @@ public final class JadedCorePlugin extends JavaPlugin {
 
         // Register placeholders.
         new Placeholders(this).register();
+
+        JadedAPI.initalize(this);
     }
 
     @Override
