@@ -1,5 +1,6 @@
 package net.jadedmc.jadedcore;
 
+import net.jadedmc.jadedcore.achievements.Achievement;
 import net.jadedmc.jadedcore.minigames.Minigame;
 import net.jadedmc.jadedsync.api.JadedSyncAPI;
 import net.jadedmc.jadedsync.api.server.ServerInstance;
@@ -13,6 +14,10 @@ public class JadedAPI {
 
     public static void initalize(JadedCorePlugin pl) {
         plugin = pl;
+    }
+
+    public static Achievement getAchievement(@NotNull final String id) {
+        return plugin.getAchievementManager().getAchievement(id);
     }
 
     public static int getRequiredExp(int level) {
