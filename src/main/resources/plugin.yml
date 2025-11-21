@@ -1,0 +1,12 @@
+name: JadedCore
+version: '1.0'
+main: net.jadedmc.jadedcore.JadedCorePlugin
+api-version: '1.21'
+authors: [ JadedMC ]
+website: https://www.jadedmc.net
+depend: [JadedSync]
+
+commands:
+  profile:
+    description: View your profile.
+    usage: /<command>
