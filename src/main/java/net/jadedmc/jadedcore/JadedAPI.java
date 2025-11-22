@@ -16,6 +16,10 @@ public class JadedAPI {
         plugin = pl;
     }
 
+    public static void createAchievement(final Minigame game, final String id, final String name, final String description, final int points, String... rewards) {
+        plugin.getAchievementManager().createAchievement(game, id, name, description, points, rewards);
+    }
+
     public static Achievement getAchievement(@NotNull final String id) {
         return plugin.getAchievementManager().getAchievement(id);
     }
