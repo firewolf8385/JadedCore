@@ -26,11 +26,15 @@
 package net.jadedmc.jadedcore;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.jadedmc.jadedcore.minigames.Minigame;
 import net.jadedmc.jadedcore.player.JadedPlayer;
 import net.jadedmc.jadedutils.chat.ChatUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -40,6 +44,7 @@ import java.util.Arrays;
  */
 class Placeholders extends PlaceholderExpansion {
     private final JadedCorePlugin plugin;
+    private volatile int totalPlayers = 0;
 
     /**
      * Since we register the expansion inside our own plugin, we
@@ -51,6 +56,21 @@ class Placeholders extends PlaceholderExpansion {
      */
     public Placeholders(final JadedCorePlugin plugin){
         this.plugin = plugin;
+
+        plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            try {
+                PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("SELECT COUNT(*) as player_count FROM player_info;");
+                ResultSet resultSet = statement.executeQuery();
+
+                if(resultSet.next()) {
+                    totalPlayers = resultSet.getInt(1);
+                }
+            }
+            catch (SQLException exception) {
+                totalPlayers = -1;
+                exception.printStackTrace();
+            }
+        }, 0, 2400);
     }
 
     /**
@@ -189,6 +209,15 @@ class Placeholders extends PlaceholderExpansion {
 
         if(identifier.contains("level")) {
             return jadedPlayer.getLevel() + "";
+        }
+
+        if(identifier.contains("playing_")) {
+            final Minigame minigame = Minigame.valueOf(Arrays.stream(identifier.split("playing_")).toList().getLast().toUpperCase()) ;
+            return plugin.getMinigameManager().getPlayerCount(minigame) + "";
+        }
+
+        if(identifier.contains("player_count")) {
+            return "" + totalPlayers;
         }
 
         return null;
