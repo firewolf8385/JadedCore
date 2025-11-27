@@ -4,14 +4,18 @@ import net.jadedmc.jadedcore.achievements.Achievement;
 import net.jadedmc.jadedcore.database.MongoDB;
 import net.jadedmc.jadedcore.database.MySQL;
 import net.jadedmc.jadedcore.minigames.Minigame;
+import net.jadedmc.jadedcore.player.JadedPlayer;
 import net.jadedmc.jadedsync.api.JadedSyncAPI;
 import net.jadedmc.jadedsync.api.player.JadedSyncPlayer;
 import net.jadedmc.jadedsync.api.player.JadedSyncPlayerMap;
 import net.jadedmc.jadedsync.api.server.ServerInstance;
 import net.jadedmc.jadedutils.chat.StringUtils;
+import net.jadedmc.jadedutils.player.PluginPlayer;
 import org.bson.Document;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 public class JadedAPI {
     private static JadedCorePlugin plugin;
@@ -131,5 +135,25 @@ public class JadedAPI {
 
     public static MySQL getMySQL() {
         return plugin.getMySQL();
+    }
+
+    public static Minigame getMinigame() {
+        return Minigame.valueOf(plugin.getConfigManager().getConfig().getString("serverGame"));
+    }
+
+    public static String getServerName() {
+        return JadedSyncAPI.getCurrentInstance().getName();
+    }
+
+    public static JadedPlayer getJadedPlayer(@NotNull final Player player) {
+        return plugin.getJadedPlayerManager().getPlayer(player);
+    }
+
+    public static JadedPlayer getJadedPlayer(@NotNull final PluginPlayer pluginPlayer) {
+        return plugin.getJadedPlayerManager().getPlayer(pluginPlayer.getUniqueId());
+    }
+
+    public static JadedPlayer getJadedPlayer(@NotNull final UUID uuid) {
+        return plugin.getJadedPlayerManager().getPlayer(uuid);
     }
 }
