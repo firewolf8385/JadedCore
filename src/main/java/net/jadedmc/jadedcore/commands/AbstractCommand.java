@@ -38,7 +38,7 @@ public abstract class AbstractCommand implements CommandExecutor {
         //new AnvilCMD();
         //new BroadcastCMD();
         //new CancelWorldCMD(pl);
-        //new CenterCMD();
+        new CenterCMD();
         //new ChatLogCMD(pl);
         //new CommandSpyCMD(pl);
         //new CopyWorldCMD(pl);

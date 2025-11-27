@@ -7,6 +7,10 @@ website: https://www.jadedmc.net
 depend: [JadedSync]
 
 commands:
+  center:
+    description: Center the player on a block.
+    usage: /<command>
+    permission: jadedcore.center
   profile:
     description: View your profile.
     usage: /<command>
