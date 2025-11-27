@@ -37,11 +37,16 @@ import net.jadedmc.jadedcore.minigames.MinigameManager;
 import net.jadedmc.jadedcore.player.JadedPlayerManager;
 import net.jadedmc.jadedcore.settings.ConfigManager;
 import net.jadedmc.jadedcore.settings.JadedSyncIntegration;
+import net.jadedmc.jadedcore.worlds.WorldManager;
 import net.jadedmc.jadedsync.api.JadedSyncAPI;
+import net.jadedmc.jadedutils.FileUtils;
 import net.jadedmc.jadedutils.gui.GUIListeners;
 import net.jadedmc.jadedutils.scoreboard.ScoreboardUpdate;
 import net.luckperms.api.LuckPermsProvider;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
 
 public final class JadedCorePlugin extends JavaPlugin {
     private AchievementManager achievementManager;
@@ -53,6 +58,7 @@ public final class JadedCorePlugin extends JavaPlugin {
     private MongoDB mongoDB;
     private MySQL mySQL;
     private Redis redis;
+    private WorldManager worldManager;
 
     @Override
     public void onEnable() {
@@ -71,6 +77,7 @@ public final class JadedCorePlugin extends JavaPlugin {
         JadedSyncAPI.registerIntegration(new JadedSyncIntegration(this));
 
         // Load other stuff
+        worldManager = new WorldManager(this);
         jadedPlayerManager = new JadedPlayerManager(this);
         achievementManager = new AchievementManager(this);
         lobbyManager = new LobbyManager(this);
@@ -88,11 +95,42 @@ public final class JadedCorePlugin extends JavaPlugin {
         new Placeholders(this).register();
 
         JadedAPI.initalize(this);
+
+        // Downloads configured worlds.
+        updateWorlds();
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+    }
+
+    /**
+     * Updates worlds listed in the config file.
+     * Called when the server is first started.
+     */
+    private void updateWorlds() {
+        ConfigurationSection worldsSection = configManager.getConfig().getConfigurationSection("Worlds");
+
+        // Exit if there is no section.
+        if(worldsSection == null) {
+            return;
+        }
+
+        // Loops through each world configured.
+        for(String world : worldsSection.getKeys(false)) {
+            String fileName = configManager.getConfig().getString("Worlds." + world);
+
+            // Deletes the world folder if it currently already exists.
+            File worldFolder = new File(getServer().getPluginsFolder().getParent(), world);
+            if(worldFolder.exists()) {
+                FileUtils.deleteDirectory(worldFolder);
+            }
+
+            // Downloads the world from MongoDB.
+            File newWorld = worldManager.downloadWorldSync(fileName);
+            newWorld.renameTo(worldFolder);
+        }
     }
 
     /**
@@ -149,5 +187,9 @@ public final class JadedCorePlugin extends JavaPlugin {
 
     public Redis getRedis() {
         return this.redis;
+    }
+
+    public WorldManager getWorldManager() {
+        return this.worldManager;
     }
 }

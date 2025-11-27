@@ -156,4 +156,8 @@ public class JadedAPI {
     public static JadedPlayer getJadedPlayer(@NotNull final UUID uuid) {
         return plugin.getJadedPlayerManager().getPlayer(uuid);
     }
+
+    public static JadedCorePlugin getPlugin() {
+        return plugin;
+    }
 }
