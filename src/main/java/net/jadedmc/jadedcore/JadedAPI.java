@@ -1,6 +1,8 @@
 package net.jadedmc.jadedcore;
 
 import net.jadedmc.jadedcore.achievements.Achievement;
+import net.jadedmc.jadedcore.database.MongoDB;
+import net.jadedmc.jadedcore.database.MySQL;
 import net.jadedmc.jadedcore.minigames.Minigame;
 import net.jadedmc.jadedsync.api.JadedSyncAPI;
 import net.jadedmc.jadedsync.api.player.JadedSyncPlayer;
@@ -109,7 +111,7 @@ public class JadedAPI {
         }).whenComplete((results, error) -> error.printStackTrace());
     }
 
-    public JadedSyncPlayerMap getPlayers(final Minigame minigame) {
+    public static JadedSyncPlayerMap getPlayers(final Minigame minigame) {
         final JadedSyncPlayerMap playerMap = new JadedSyncPlayerMap();
 
         for(JadedSyncPlayer player : JadedSyncAPI.getPlayers().values()) {
@@ -121,5 +123,13 @@ public class JadedAPI {
         }
 
         return playerMap;
+    }
+
+    public static MongoDB getMongoDB() {
+        return plugin.getMongoDB();
+    }
+
+    public static MySQL getMySQL() {
+        return plugin.getMySQL();
     }
 }
