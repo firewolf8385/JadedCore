@@ -3,6 +3,8 @@ package net.jadedmc.jadedcore;
 import net.jadedmc.jadedcore.achievements.Achievement;
 import net.jadedmc.jadedcore.minigames.Minigame;
 import net.jadedmc.jadedsync.api.JadedSyncAPI;
+import net.jadedmc.jadedsync.api.player.JadedSyncPlayer;
+import net.jadedmc.jadedsync.api.player.JadedSyncPlayerMap;
 import net.jadedmc.jadedsync.api.server.ServerInstance;
 import net.jadedmc.jadedutils.chat.StringUtils;
 import org.bson.Document;
@@ -105,5 +107,19 @@ public class JadedAPI {
                 JadedSyncAPI.sendToServer(player, serverName);
             }
         }).whenComplete((results, error) -> error.printStackTrace());
+    }
+
+    public JadedSyncPlayerMap getPlayers(final Minigame minigame) {
+        final JadedSyncPlayerMap playerMap = new JadedSyncPlayerMap();
+
+        for(JadedSyncPlayer player : JadedSyncAPI.getPlayers().values()) {
+            final Document document = Document.parse(player.getIntegration("jadedcore"));
+
+            if(Minigame.valueOf(document.getString("game")) == minigame) {
+                playerMap.put(player.getUniqueId(), player);
+            }
+        }
+
+        return playerMap;
     }
 }

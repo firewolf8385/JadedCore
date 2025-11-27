@@ -17,7 +17,10 @@ public class JadedSyncIntegration extends Integration {
 
     @Override
     public String getPlayerIntegration(@NotNull final JadedSyncPlayer jadedSyncPlayer) {
-        return "";
+        final Document document = new Document()
+                .append("game", plugin.getConfigManager().getConfig().getString("serverGame"));
+
+        return document.toJson();
     }
 
     @Override
