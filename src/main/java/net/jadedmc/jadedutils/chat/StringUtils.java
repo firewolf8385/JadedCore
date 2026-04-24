@@ -92,7 +92,7 @@ public class StringUtils {
      * @param text String to convert.
      * @return Converted String.
      */
-    private static String toSmallCaps(@NotNull String text) {
+    public static String toSmallCaps(@NotNull String text) {
         text = text.toLowerCase();
 
         final int length = text.length();
