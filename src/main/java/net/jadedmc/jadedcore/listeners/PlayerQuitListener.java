@@ -1,5 +1,6 @@
 package net.jadedmc.jadedcore.listeners;
 
+import net.jadedmc.jadedcore.JadedAPI;
 import net.jadedmc.jadedcore.JadedCorePlugin;
 import net.jadedmc.jadedcore.events.LobbyQuitEvent;
 import net.jadedmc.jadedcore.player.JadedPlayer;
@@ -43,7 +44,7 @@ public class PlayerQuitListener implements Listener {
 
         event.quitMessage(null);
 
-        if(!jadedPlayer.isVanished()) {
+        if(!jadedPlayer.isVanished() && plugin.getLobbyManager().isEnabled()) {
             ChatUtils.broadcast(player.getWorld(),"&8[&c-&8] &c" + jadedPlayer.getName());
         }
 
