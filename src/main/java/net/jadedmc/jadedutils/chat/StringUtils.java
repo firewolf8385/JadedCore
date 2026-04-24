@@ -25,6 +25,7 @@
 package net.jadedmc.jadedutils.chat;
 
 import net.md_5.bungee.api.ChatColor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.regex.Pattern;
  * A collection of String-related utilities.
  */
 public class StringUtils {
+    private static final char[] SMALL_CAPS_ALPHABET = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴩqʀꜱᴛᴜᴠᴡxyᴢ".toCharArray();
 
     /**
      * Join multiple strings together into one string.
@@ -83,5 +85,89 @@ public class StringUtils {
         }
 
         return ChatColor.translateAlternateColorCodes('&', message);
+    }
+
+    /**
+     * Convert a String to small caps.
+     * @param text String to convert.
+     * @return Converted String.
+     */
+    private static String toSmallCaps(@NotNull String text) {
+        text = text.toLowerCase();
+
+        final int length = text.length();
+        final StringBuilder smallCaps = new StringBuilder(length);
+        for(int i = 0; i < length; i++) {
+            char c = text.charAt(i);
+            if(c >= 'a' && c <= 'z') {
+                smallCaps.append(SMALL_CAPS_ALPHABET[c - 'a']);
+            } else {
+                smallCaps.append(c);
+            }
+        }
+        return smallCaps.toString();
+    }
+
+    /**
+     * Convert an integer to Roman Numerals
+     * @param input Integer to convert.
+     * @return Roman Numeral of the integer.
+     */
+    public static String toRomanNumeral(int input) {
+        if (input < 1 || input > 3999)
+            return "Invalid Roman Number Value";
+        String s = "";
+        while (input >= 1000) {
+            s += "M";
+            input -= 1000;        }
+        while (input >= 900) {
+            s += "CM";
+            input -= 900;
+        }
+        while (input >= 500) {
+            s += "D";
+            input -= 500;
+        }
+        while (input >= 400) {
+            s += "CD";
+            input -= 400;
+        }
+        while (input >= 100) {
+            s += "C";
+            input -= 100;
+        }
+        while (input >= 90) {
+            s += "XC";
+            input -= 90;
+        }
+        while (input >= 50) {
+            s += "L";
+            input -= 50;
+        }
+        while (input >= 40) {
+            s += "XL";
+            input -= 40;
+        }
+        while (input >= 10) {
+            s += "X";
+            input -= 10;
+        }
+        while (input >= 9) {
+            s += "IX";
+            input -= 9;
+        }
+        while (input >= 5) {
+            s += "V";
+            input -= 5;
+        }
+        while (input >= 4) {
+            s += "IV";
+            input -= 4;
+        }
+        while (input >= 1) {
+            s += "I";
+            input -= 1;
+        }
+        return s;
     }
 }
