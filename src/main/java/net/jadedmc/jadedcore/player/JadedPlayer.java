@@ -24,7 +24,6 @@
  */
 package net.jadedmc.jadedcore.player;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.jadedmc.jadedcore.JadedAPI;
 import net.jadedmc.jadedcore.JadedCorePlugin;
 import net.jadedmc.jadedcore.achievements.Achievement;
@@ -35,10 +34,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
@@ -73,8 +69,8 @@ public class JadedPlayer extends PluginPlayer {
         this.rank = Rank.fromName(LuckPermsProvider.get().getUserManager().getUser(player.getUniqueId()).getPrimaryGroup());
 
         // Player Info
-        try {
-            PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM player_info where uuid = ? LIMIT 1");
+        try (final Connection connection = plugin.getMySQL().getConnection()){
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM player_info where uuid = ? LIMIT 1");
             statement.setString(1, player.getUniqueId().toString());
             ResultSet resultSet = statement.executeQuery();
 
@@ -82,9 +78,16 @@ public class JadedPlayer extends PluginPlayer {
                 level = resultSet.getInt("level");
                 experience = resultSet.getInt("experience");
                 firstJoined = resultSet.getTimestamp("firstOnline");
+
+                PreparedStatement update = connection.prepareStatement("UPDATE player_info SET username = ?, ip = ?, lastOnline = ? WHERE uuid = ?;");
+                update.setString(1, getName());
+                update.setString(2, player.getAddress().getAddress().getHostAddress());
+                update.setTimestamp(3, new Timestamp((System.currentTimeMillis())));
+                update.setString(4, getUniqueId().toString());
+                update.executeUpdate();
             }
             else {
-                PreparedStatement statement2 = plugin.getMySQL().getConnection().prepareStatement("INSERT INTO player_info (uuid,username,ip) VALUES (?,?,?)");
+                PreparedStatement statement2 = connection.prepareStatement("INSERT INTO player_info (uuid,username,ip) VALUES (?,?,?)");
                 statement2.setString(1, getUniqueId().toString());
                 statement2.setString(2, getName());
                 statement2.setString(3, player.getAddress().getAddress().getHostAddress());
@@ -101,8 +104,8 @@ public class JadedPlayer extends PluginPlayer {
 
         // Staff settings.
         if(rank.isStaffRank()) {
-            try {
-                PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM staff_settings WHERE uuid = ? LIMIT 1");
+            try (final Connection connection = plugin.getMySQL().getConnection()) {
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM staff_settings WHERE uuid = ? LIMIT 1");
                 statement.setString(1, player.getUniqueId().toString());
                 ResultSet results = statement.executeQuery();
 
@@ -111,7 +114,7 @@ public class JadedPlayer extends PluginPlayer {
                     vanished = results.getBoolean(2);
                 }
                 else {
-                    PreparedStatement statement2 = plugin.getMySQL().getConnection().prepareStatement("INSERT INTO staff_settings (uuid) VALUES (?)");
+                    PreparedStatement statement2 = connection.prepareStatement("INSERT INTO staff_settings (uuid) VALUES (?)");
                     statement2.setString(1, player.getUniqueId().toString());
                     statement2.executeUpdate();
 
@@ -125,8 +128,8 @@ public class JadedPlayer extends PluginPlayer {
         }
 
         // Achievements
-        try {
-            PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM player_achievements WHERE uuid = ?");
+        try (final Connection connection = plugin.getMySQL().getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM player_achievements WHERE uuid = ?");
             statement.setString(1, player.getUniqueId().toString());
             ResultSet resultSet = statement.executeQuery();
 
@@ -140,7 +143,7 @@ public class JadedPlayer extends PluginPlayer {
 
             int achievementPoints = getAchievementPoints();
             if(achievementPoints > 0) {
-                PreparedStatement updateStatement = plugin.getMySQL().getConnection().prepareStatement("UPDATE player_info SET achievementPoints = ? WHERE uuid = ?");
+                PreparedStatement updateStatement = connection.prepareStatement("UPDATE player_info SET achievementPoints = ? WHERE uuid = ?");
                 updateStatement.setInt(1, achievementPoints);
                 updateStatement.setString(2, player.getUniqueId().toString());
                 updateStatement.executeUpdate();
@@ -268,12 +271,12 @@ public class JadedPlayer extends PluginPlayer {
      *
      * @param spying Whether they are spying on commands.
      */
-    public void setSpying(boolean spying) {
+    public void setSpying(final boolean spying) {
         this.spying = spying;
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
-                PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("UPDATE staff_settings SET commandSpy = ? WHERE uuid = ?");
+            try (final Connection connection = plugin.getMySQL().getConnection()){
+                PreparedStatement statement = connection.prepareStatement("UPDATE staff_settings SET commandSpy = ? WHERE uuid = ?");
                 statement.setBoolean(1, spying);
                 statement.setString(2, player.getUniqueId().toString());
                 statement.executeUpdate();
@@ -310,8 +313,8 @@ public class JadedPlayer extends PluginPlayer {
         }
 
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
-                PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("UPDATE staff_settings SET vanish = ? WHERE uuid = ?");
+            try (final Connection connection = plugin.getMySQL().getConnection()){
+                PreparedStatement statement = connection.prepareStatement("UPDATE staff_settings SET vanish = ? WHERE uuid = ?");
                 statement.setBoolean(1, vanished);
                 statement.setString(2, player.getUniqueId().toString());
                 statement.executeUpdate();
@@ -335,8 +338,8 @@ public class JadedPlayer extends PluginPlayer {
     public void setExperience(final int experience) {
         this.experience = experience;
 
-        try {
-            final PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("UPDATE player_info SET experience = ? WHERE uuid = ?");
+        try (final Connection connection = plugin.getMySQL().getConnection()){
+            final PreparedStatement statement = connection.prepareStatement("UPDATE player_info SET experience = ? WHERE uuid = ?");
             statement.setInt(1, experience);
             statement.setString(2, player.getUniqueId().toString());
             statement.executeUpdate();
@@ -350,8 +353,8 @@ public class JadedPlayer extends PluginPlayer {
         this.level = level;
 
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
-                final PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("UPDATE player_info SET level = ? WHERE uuid = ?");
+            try (final Connection connection = plugin.getMySQL().getConnection()){
+                final PreparedStatement statement = connection.prepareStatement("UPDATE player_info SET level = ? WHERE uuid = ?");
                 statement.setInt(1, level);
                 statement.setString(2, player.getUniqueId().toString());
                 statement.executeUpdate();

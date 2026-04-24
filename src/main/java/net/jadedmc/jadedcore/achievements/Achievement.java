@@ -31,6 +31,7 @@ import net.jadedmc.jadedutils.chat.ChatUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -147,8 +148,8 @@ public class Achievement {
 
         // Update MySQL.
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
-                PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("INSERT INTO player_achievements (uuid,achievementID) VALUES (?,?)");
+            try (final Connection connection = plugin.getMySQL().getConnection()){
+                PreparedStatement statement = connection.prepareStatement("INSERT INTO player_achievements (uuid,achievementID) VALUES (?,?)");
                 statement.setString(1, player.getUniqueId().toString());
                 statement.setString(2, id);
                 statement.executeUpdate();

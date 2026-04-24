@@ -3,6 +3,7 @@ package net.jadedmc.jadedcore.leaderboards;
 import net.jadedmc.jadedcore.JadedCorePlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,9 +36,9 @@ public class LeaderboardManager {
     }
 
     public void updateAchievementPoints() {
-        try {
+        try (final Connection connection = plugin.getMySQL().getConnection()){
             achievementPoints.clear();
-            PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM player_info ORDER BY achievementPoints DESC LIMIT 10");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM player_info ORDER BY achievementPoints DESC LIMIT 10");
             ResultSet resultSet = statement.executeQuery();
 
             while(resultSet.next()) {

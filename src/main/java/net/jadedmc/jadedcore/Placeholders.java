@@ -32,6 +32,7 @@ import net.jadedmc.jadedutils.chat.ChatUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -58,8 +59,8 @@ class Placeholders extends PlaceholderExpansion {
         this.plugin = plugin;
 
         plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            try {
-                PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("SELECT COUNT(*) as player_count FROM player_info;");
+            try (final Connection connection = plugin.getMySQL().getConnection()) {
+                PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) as player_count FROM player_info;");
                 ResultSet resultSet = statement.executeQuery();
 
                 if(resultSet.next()) {

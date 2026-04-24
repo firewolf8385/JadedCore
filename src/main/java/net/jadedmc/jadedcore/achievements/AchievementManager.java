@@ -28,6 +28,7 @@ import net.jadedmc.jadedcore.JadedCorePlugin;
 import net.jadedmc.jadedcore.minigames.Minigame;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -61,8 +62,8 @@ public class AchievementManager {
      */
     public void loadAchievements() {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
-                PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("SELECT * FROM achievements_list");
+            try (final Connection connection = plugin.getMySQL().getConnection()){
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM achievements_list");
                 ResultSet resultSet = statement.executeQuery();
 
                 while(resultSet.next()) {
@@ -101,8 +102,8 @@ public class AchievementManager {
         }
 
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
-                PreparedStatement statement = plugin.getMySQL().getConnection().prepareStatement("REPLACE INTO achievements_list (id,mode,name,description,achievementPoints,rewards) VALUES (?,?,?,?,?,?)");
+            try (final Connection connection = plugin.getMySQL().getConnection()){
+                PreparedStatement statement = connection.prepareStatement("REPLACE INTO achievements_list (id,mode,name,description,achievementPoints,rewards) VALUES (?,?,?,?,?,?)");
                 statement.setString(1, id);
                 statement.setString(2, game.toString());
                 statement.setString(3, name);
