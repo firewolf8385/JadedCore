@@ -295,4 +295,9 @@ public class ItemBuilder {
         this.itemMeta = itemStack.getItemMeta();
         return this;
     }
+
+    public ItemBuilder setItemModel(final Material material) {
+        itemMeta.setItemModel(material.getKey());
+        return this;
+    }
 }
